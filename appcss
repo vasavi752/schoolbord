@@ -1,0 +1,809 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom component styles */
+@layer components {
+  .dashboard {
+    @apply min-h-screen bg-gray-50 flex;
+  }
+
+  .sidebar {
+    @apply w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out fixed h-full z-50 lg:relative lg:translate-x-0;
+  }
+
+  .sidebar.open {
+    @apply translate-x-0;
+  }
+
+  .sidebar-header {
+    @apply p-6 border-b border-gray-200 flex items-center justify-between;
+  }
+
+  .sidebar-nav {
+    @apply p-4 space-y-2;
+  }
+
+  .nav-item {
+    @apply w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium;
+  }
+
+  .nav-item.active {
+    @apply bg-primary-500 text-white hover:bg-primary-600;
+  }
+
+  .nav-icon {
+    @apply text-lg;
+  }
+
+  .main-content {
+    @apply flex-1 flex flex-col overflow-hidden;
+  }
+
+  .dashboard-header {
+    @apply bg-white shadow-sm border-b border-gray-200 p-4 lg:p-6 flex items-center justify-between;
+  }
+
+  .menu-toggle {
+    @apply lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg;
+  }
+
+  .header-actions {
+    @apply flex items-center gap-4;
+  }
+
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+
+  .user-profile {
+    @apply relative flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors duration-200;
+  }
+
+  .user-avatar {
+    @apply w-10 h-10 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold;
+  }
+
+  .user-info {
+    @apply hidden lg:block;
+  }
+
+  .user-dropdown {
+    @apply absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50;
+  }
+
+  .user-dropdown button {
+    @apply w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200;
+  }
+
+  .content-area {
+    @apply flex-1 overflow-auto p-4 lg:p-6;
+  }
+
+  .stats-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8;
+  }
+
+  .stat-card {
+    @apply bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+  }
+
+  .stat-icon {
+    @apply text-2xl mb-3;
+  }
+
+  .stat-content h3 {
+    @apply text-2xl font-bold text-gray-900 mb-1;
+  }
+
+  .stat-content p {
+    @apply text-gray-600 text-sm mb-2;
+  }
+
+  .trend {
+    @apply text-sm font-medium;
+  }
+
+  .trend.positive {
+    @apply text-green-600;
+  }
+
+  .trend.negative {
+    @apply text-red-600;
+  }
+
+  .content-grid {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+  }
+
+  .widget {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200;
+  }
+
+  .widget-header {
+    @apply flex items-center justify-between p-6 border-b border-gray-200;
+  }
+
+  .widget-header h3 {
+    @apply text-lg font-semibold text-gray-900;
+  }
+
+  .widget-action {
+    @apply text-primary-600 hover:text-primary-700 font-medium;
+  }
+
+  .widget-content {
+    @apply p-6;
+  }
+
+  .activity-item {
+    @apply flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors duration-200;
+  }
+
+  .activity-icon {
+    @apply w-10 h-10 rounded-full flex items-center justify-center text-white font-medium;
+  }
+
+  .activity-icon.enrollment {
+    @apply bg-blue-500;
+  }
+
+  .activity-icon.assignment {
+    @apply bg-green-500;
+  }
+
+  .activity-icon.event {
+    @apply bg-purple-500;
+  }
+
+  .activity-icon.grade {
+    @apply bg-orange-500;
+  }
+
+  .activity-content p {
+    @apply text-gray-900 font-medium mb-1;
+  }
+
+  .activity-time {
+    @apply text-gray-500 text-sm;
+  }
+
+  .event-item {
+    @apply flex items-center gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors duration-200;
+  }
+
+  .event-date {
+    @apply flex flex-col items-center justify-center w-12 h-12 bg-primary-100 text-primary-700 rounded-lg font-bold;
+  }
+
+  .event-details h4 {
+    @apply font-semibold text-gray-900 mb-1;
+  }
+
+  .event-details p {
+    @apply text-gray-600 text-sm;
+  }
+
+  .classes-grid,
+  .teachers-grid,
+  .students-grid,
+  .events-grid,
+  .attendance-grid,
+  .grades-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .class-card,
+  .teacher-card,
+  .student-card,
+  .event-card,
+  .attendance-card,
+  .grade-card {
+    @apply bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 hover:-translate-y-1;
+  }
+
+  .content-header {
+    @apply flex items-center justify-between mb-6;
+  }
+
+  .content-header h2 {
+    @apply text-2xl font-bold text-gray-900;
+  }
+
+  .mobile-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-auto;
+  }
+
+  .modal-content.large-modal {
+    @apply max-w-4xl;
+  }
+
+  .modal-header {
+    @apply flex items-center justify-between p-6 border-b border-gray-200;
+  }
+
+  .modal-header h3 {
+    @apply text-xl font-semibold text-gray-900;
+  }
+
+  .modal-close {
+    @apply text-gray-400 hover:text-gray-600 text-xl;
+  }
+
+  .modal-body {
+    @apply p-6;
+  }
+
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-group label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+
+  .form-row {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  .form-actions {
+    @apply flex gap-3 justify-end pt-4;
+  }
+
+  .teacher-avatar,
+  .student-avatar {
+    @apply w-12 h-12 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold;
+  }
+
+  .student-avatar-small {
+    @apply w-8 h-8 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm;
+  }
+
+  .gpa {
+    @apply px-2 py-1 rounded-full text-sm font-medium;
+  }
+
+  .gpa.high {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .gpa.medium {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .gpa.low {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .status-badge {
+    @apply px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .status-badge.open {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .attendance-filters,
+  .grades-filters,
+  .events-filters {
+    @apply flex flex-wrap items-center gap-4 mb-6 p-4 bg-white rounded-lg border border-gray-200;
+  }
+
+  .filter-group {
+    @apply flex items-center gap-2;
+  }
+
+  .filter-group label {
+    @apply text-sm font-medium text-gray-700;
+  }
+
+  .filter-select {
+    @apply px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+
+  .loading-spinner {
+    @apply w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
+  }
+
+  .loading-spinner-large {
+    @apply w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin;
+  }
+
+  .loading-container {
+    @apply min-h-screen flex flex-col items-center justify-center;
+  }
+
+  /* Detail Pages Styles */
+  .page-content {
+    @apply p-6;
+  }
+
+  .page-header {
+    @apply flex items-center justify-between mb-6 pb-4 border-b border-gray-200;
+  }
+
+  .page-header h1 {
+    @apply text-3xl font-bold text-gray-900;
+  }
+
+  .details-grid {
+    @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+  }
+
+  .main-details {
+    @apply lg:col-span-2 space-y-6;
+  }
+
+  .sidebar-details {
+    @apply space-y-6;
+  }
+
+  .detail-card {
+    @apply bg-white rounded-xl p-6 shadow-sm border border-gray-200;
+  }
+
+  .detail-card h3 {
+    @apply text-xl font-semibold text-gray-900 mb-4;
+  }
+
+  .detail-card h4 {
+    @apply text-lg font-semibold text-gray-900 mb-3;
+  }
+
+  .detail-card h5 {
+    @apply text-base font-semibold text-gray-900 mb-2;
+  }
+
+  .student-avatar-large {
+    @apply w-20 h-20 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-2xl;
+  }
+
+  .student-profile-header {
+    @apply flex items-center gap-4 mb-6;
+  }
+
+  .info-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  .info-item {
+    @apply flex flex-col gap-1;
+  }
+
+  .info-item label {
+    @apply text-sm font-medium text-gray-600;
+  }
+
+  .info-item span {
+    @apply text-gray-900 font-medium;
+  }
+
+  .performance-stats {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4 mb-6;
+  }
+
+  .stat-card {
+    @apply bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-4 text-center;
+  }
+
+  .stat-card h4 {
+    @apply text-sm font-medium text-primary-600 mb-1;
+  }
+
+  .stat-value {
+    @apply text-2xl font-bold text-primary-700;
+  }
+
+  .grades-list {
+    @apply space-y-2 mb-4;
+  }
+
+  .grade-item {
+    @apply flex items-center justify-between p-3 bg-gray-50 rounded-lg;
+  }
+
+  .grade-item .subject {
+    @apply font-medium text-gray-900;
+  }
+
+  .grade-item .assignment {
+    @apply text-gray-600;
+  }
+
+  .grade-item .score {
+    @apply font-semibold text-primary-600;
+  }
+
+  .grade-item .date {
+    @apply text-sm text-gray-500;
+  }
+
+  .attendance-stats {
+    @apply space-y-2 mb-4;
+  }
+
+  .stat-item {
+    @apply flex justify-between items-center;
+  }
+
+  .stat-item label {
+    @apply text-gray-600;
+  }
+
+  .stat-item span {
+    @apply font-medium text-gray-900;
+  }
+
+  .guardian-info {
+    @apply space-y-4;
+  }
+
+  .guardian-item {
+    @apply p-4 bg-gray-50 rounded-lg;
+  }
+
+  .guardian-item h4 {
+    @apply font-semibold text-gray-900 mb-2;
+  }
+
+  .guardian-item p {
+    @apply text-sm text-gray-600 mb-1;
+  }
+
+  .medical-info {
+    @apply space-y-3;
+  }
+
+  .activities-list {
+    @apply space-y-2;
+  }
+
+  .activity-item {
+    @apply flex justify-between items-center p-3 bg-gray-50 rounded-lg;
+  }
+
+  .activity-name {
+    @apply font-medium text-gray-900;
+  }
+
+  .activity-role {
+    @apply text-sm text-primary-600 font-medium;
+  }
+
+  .class-info-header {
+    @apply p-6 rounded-lg text-white mb-6;
+  }
+
+  .class-title h2 {
+    @apply text-2xl font-bold mb-1;
+  }
+
+  .class-title p {
+    @apply text-white/90;
+  }
+
+  .class-stats {
+    @apply mt-4;
+  }
+
+  .stat-number {
+    @apply text-3xl font-bold block;
+  }
+
+  .stat-label {
+    @apply text-white/90 text-sm;
+  }
+
+  .students-list {
+    @apply space-y-3;
+  }
+
+  .student-row {
+    @apply flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors;
+  }
+
+  .student-info-row {
+    @apply flex-1 ml-3;
+  }
+
+  .student-name {
+    @apply font-medium text-gray-900 block;
+  }
+
+  .student-gpa {
+    @apply text-sm text-primary-600;
+  }
+
+  .btn-small {
+    @apply px-3 py-1 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm;
+  }
+
+  .schedule-info {
+    @apply space-y-3;
+  }
+
+  .schedule-item {
+    @apply flex justify-between items-center p-3 bg-gray-50 rounded-lg;
+  }
+
+  .day {
+    @apply font-medium text-gray-900;
+  }
+
+  .time {
+    @apply text-primary-600;
+  }
+
+  .room {
+    @apply text-gray-600 text-sm;
+  }
+
+  .assignments-list {
+    @apply space-y-2;
+  }
+
+  .assignment-item {
+    @apply p-3 bg-gray-50 rounded-lg;
+  }
+
+  .assignment-name {
+    @apply font-medium text-gray-900 block;
+  }
+
+  .due-date {
+    @apply text-sm text-gray-600;
+  }
+
+  .status {
+    @apply text-xs px-2 py-1 rounded-full font-medium;
+  }
+
+  .status.completed {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .status.active {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .materials-list {
+    @apply space-y-2;
+  }
+
+  .material-item {
+    @apply flex items-center gap-3 p-3 bg-gray-50 rounded-lg;
+  }
+
+  .material-icon {
+    @apply text-lg;
+  }
+
+  .material-name {
+    @apply font-medium text-gray-900;
+  }
+
+  .event-banner {
+    @apply p-8 rounded-lg text-white mb-6;
+  }
+
+  .event-banner-content h2 {
+    @apply text-3xl font-bold mb-3;
+  }
+
+  .event-category-large {
+    @apply text-lg font-medium mb-2 opacity-90;
+  }
+
+  .event-meta {
+    @apply flex flex-wrap gap-4 text-white/90;
+  }
+
+  .event-description {
+    @apply text-gray-700 leading-relaxed mb-4;
+  }
+
+  .event-highlights {
+    @apply mt-6;
+  }
+
+  .event-highlights h4 {
+    @apply font-semibold text-gray-900 mb-3;
+  }
+
+  .event-highlights ul {
+    @apply space-y-2 text-gray-700;
+  }
+
+  .registration-details {
+    @apply space-y-4;
+  }
+
+  .reg-stats {
+    @apply space-y-3;
+  }
+
+  .fee.free {
+    @apply text-green-600 font-semibold;
+  }
+
+  .status.open {
+    @apply text-green-600 font-semibold;
+  }
+
+  .organizer-info h4 {
+    @apply font-semibold text-gray-900 mb-2;
+  }
+
+  .organizer-info p {
+    @apply text-gray-600 text-sm mb-1;
+  }
+
+  .venue-info h4 {
+    @apply font-semibold text-gray-900 mb-2;
+  }
+
+  .venue-info p {
+    @apply text-gray-600 text-sm mb-1;
+  }
+
+  .schedule-timeline {
+    @apply space-y-3;
+  }
+
+  .timeline-item {
+    @apply flex justify-between items-center p-3 bg-gray-50 rounded-lg;
+  }
+
+  .timeline-item .time {
+    @apply font-medium text-primary-600;
+  }
+
+  .timeline-item .activity {
+    @apply text-gray-700;
+  }
+
+  .grade-details-page {
+    @apply space-y-6;
+  }
+
+  .grade-score-large {
+    @apply text-3xl font-bold text-white px-6 py-3 rounded-lg;
+  }
+
+  .metric-card {
+    @apply bg-white border border-gray-200 rounded-lg p-4;
+  }
+
+  .score-details {
+    @apply space-y-2;
+  }
+
+  .score-item {
+    @apply flex justify-between items-center;
+  }
+
+  .attendance-details-page {
+    @apply space-y-6;
+  }
+
+  .summary-card {
+    @apply bg-white border border-gray-200 rounded-lg p-4 text-center;
+  }
+
+  .summary-card h4 {
+    @apply text-sm font-medium text-gray-600 mb-1;
+  }
+
+  .stat-number {
+    @apply text-2xl font-bold;
+  }
+
+  .stat-number.present {
+    @apply text-green-600;
+  }
+
+  .stat-number.absent {
+    @apply text-red-600;
+  }
+
+  .stat-number.late {
+    @apply text-yellow-600;
+  }
+
+  .stat-number.rate {
+    @apply text-blue-600;
+  }
+
+  .history-entries {
+    @apply space-y-2;
+  }
+
+  .history-entry {
+    @apply flex items-center justify-between p-4 rounded-lg;
+  }
+
+  .history-entry.present {
+    @apply bg-green-50 border border-green-200;
+  }
+
+  .history-entry.absent {
+    @apply bg-red-50 border border-red-200;
+  }
+
+  .history-entry.late {
+    @apply bg-yellow-50 border border-yellow-200;
+  }
+
+  .entry-date {
+    @apply font-medium text-gray-900;
+  }
+
+  .entry-subject {
+    @apply text-gray-600;
+  }
+
+  .entry-status {
+    @apply font-medium;
+  }
+
+  .entry-status.present {
+    @apply text-green-700;
+  }
+
+  .entry-status.absent {
+    @apply text-red-700;
+  }
+
+  .entry-status.late {
+    @apply text-yellow-700;
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out forwards;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  .dashboard-header,
+  .mobile-overlay {
+    display: none !important;
+  }
+
+  .main-content {
+    margin: 0 !important;
+  }
+}
