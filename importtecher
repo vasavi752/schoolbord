@@ -1,0 +1,922 @@
+import React, { useState } from 'react';
+import './AddTeacherPage.css';
+
+const AddTeacherPage = ({ onBack, onSave }) => {
+  const [formData, setFormData] = useState({
+    // Personal Information
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    gender: '',
+    teacherId: '',
+    email: '',
+    phone: '',
+    alternatePhone: '',
+    address: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    
+    // Professional Information
+    subject: '',
+    department: '',
+    designation: '',
+    employeeType: '',
+    joiningDate: '',
+    experience: '',
+    previousSchool: '',
+    salary: '',
+    
+    // Educational Qualifications
+    highestDegree: '',
+    university: '',
+    graduationYear: '',
+    specialization: '',
+    additionalCertifications: '',
+    
+    // Teaching Details
+    classesAssigned: [],
+    maxClassLoad: '',
+    preferredGrades: [],
+    teachingMethodology: '',
+    
+    // Skills & Expertise
+    subjectExpertise: [],
+    technicalSkills: [],
+    languages: [],
+    extracurricularSkills: '',
+    
+    // Bank & Administrative Details
+    bankAccount: '',
+    ifscCode: '',
+    panNumber: '',
+    aadharNumber: '',
+    
+    // Additional Information
+    hobbies: '',
+    achievements: '',
+    references: '',
+    medicalInfo: '',
+    
+    // Document Checklist
+    documents: {
+      resume: false,
+      degreesCertificates: false,
+      experienceCertificates: false,
+      panCard: false,
+      aadharCard: false,
+      photographs: false,
+      addressProof: false,
+      medicalCertificate: false
+    }
+  });
+
+  const [errors, setErrors] = useState({});
+  const [currentSection, setCurrentSection] = useState(0);
+
+  const sections = [
+    { id: 0, title: '👤 Personal Information', icon: '👤' },
+    { id: 1, title: '💼 Professional Information', icon: '💼' },
+    { id: 2, title: '🎓 Educational Qualifications', icon: '🎓' },
+    { id: 3, title: '📚 Teaching Details', icon: '📚' },
+    { id: 4, title: '🛠️ Skills & Expertise', icon: '🛠️' },
+    { id: 5, title: '🏦 Bank & Administrative Details', icon: '🏦' },
+    { id: 6, title: '📋 Additional Information', icon: '📋' },
+    { id: 7, title: '📄 Document Checklist', icon: '📄' }
+  ];
+
+  const subjectOptions = [
+    'Mathematics', 'English Literature', 'Physics', 'Chemistry', 'Biology',
+    'Computer Science', 'History', 'Geography', 'Economics', 'Political Science',
+    'Art', 'Music', 'Physical Education', 'Psychology', 'Philosophy'
+  ];
+
+  const gradeOptions = [
+    'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'
+  ];
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    if (name.startsWith('documents.')) {
+      const docName = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        documents: {
+          ...prev.documents,
+          [docName]: checked
+        }
+      }));
+    } else if (name === 'classesAssigned' || name === 'preferredGrades' || name === 'subjectExpertise' || name === 'technicalSkills' || name === 'languages') {
+      const values = Array.from(e.target.selectedOptions, (option) => option.value);
+      setFormData(prev => ({
+        ...prev,
+        [name]: values
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
+    
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateSection = (sectionId) => {
+    const newErrors = {};
+    
+    switch (sectionId) {
+      case 0: // Personal Information
+        if (!formData.firstName) newErrors.firstName = 'First name is required';
+        if (!formData.lastName) newErrors.lastName = 'Last name is required';
+        if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+        if (!formData.gender) newErrors.gender = 'Gender is required';
+        if (!formData.teacherId) newErrors.teacherId = 'Teacher ID is required';
+        if (!formData.email) newErrors.email = 'Email is required';
+        if (!formData.phone) newErrors.phone = 'Phone number is required';
+        if (!formData.address) newErrors.address = 'Address is required';
+        break;
+      case 1: // Professional Information
+        if (!formData.subject) newErrors.subject = 'Subject is required';
+        if (!formData.department) newErrors.department = 'Department is required';
+        if (!formData.designation) newErrors.designation = 'Designation is required';
+        if (!formData.employeeType) newErrors.employeeType = 'Employee type is required';
+        if (!formData.joiningDate) newErrors.joiningDate = 'Joining date is required';
+        break;
+      case 2: // Educational Qualifications
+        if (!formData.highestDegree) newErrors.highestDegree = 'Highest degree is required';
+        if (!formData.university) newErrors.university = 'University is required';
+        if (!formData.graduationYear) newErrors.graduationYear = 'Graduation year is required';
+        break;
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateSection(currentSection)) {
+      setCurrentSection(prev => Math.min(prev + 1, sections.length - 1));
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentSection(prev => Math.max(prev - 1, 0));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateSection(currentSection)) {
+      const newTeacher = {
+        id: Date.now(),
+        name: `${formData.firstName} ${formData.lastName}`,
+        subject: formData.subject,
+        classes: formData.classesAssigned,
+        email: formData.email,
+        phone: formData.phone,
+        experience: formData.experience || 'New Teacher',
+        ...formData
+      };
+      onSave(newTeacher);
+    }
+  };
+
+  const renderSection = () => {
+    switch (currentSection) {
+      case 0:
+        return (
+          <div className="form-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label>First Name*</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  placeholder="Enter first name"
+                  className={errors.firstName ? 'error' : ''}
+                />
+                {errors.firstName && <span className="error-text">{errors.firstName}</span>}
+              </div>
+              <div className="form-group">
+                <label>Last Name*</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  placeholder="Enter last name"
+                  className={errors.lastName ? 'error' : ''}
+                />
+                {errors.lastName && <span className="error-text">{errors.lastName}</span>}
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Date of Birth*</label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleInputChange}
+                  className={errors.dateOfBirth ? 'error' : ''}
+                />
+                {errors.dateOfBirth && <span className="error-text">{errors.dateOfBirth}</span>}
+              </div>
+              <div className="form-group">
+                <label>Gender*</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className={errors.gender ? 'error' : ''}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                  <option value="prefer-not-to-say">Prefer not to say</option>
+                </select>
+                {errors.gender && <span className="error-text">{errors.gender}</span>}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Teacher ID*</label>
+              <input
+                type="text"
+                name="teacherId"
+                value={formData.teacherId}
+                onChange={handleInputChange}
+                placeholder="Enter unique teacher ID"
+                className={errors.teacherId ? 'error' : ''}
+              />
+              {errors.teacherId && <span className="error-text">{errors.teacherId}</span>}
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Email Address*</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="teacher@school.edu"
+                  className={errors.email ? 'error' : ''}
+                />
+                {errors.email && <span className="error-text">{errors.email}</span>}
+              </div>
+              <div className="form-group">
+                <label>Phone Number*</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="Primary phone number"
+                  className={errors.phone ? 'error' : ''}
+                />
+                {errors.phone && <span className="error-text">{errors.phone}</span>}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Alternate Phone Number</label>
+              <input
+                type="tel"
+                name="alternatePhone"
+                value={formData.alternatePhone}
+                onChange={handleInputChange}
+                placeholder="Alternate phone number"
+              />
+            </div>
+            <div className="form-group">
+              <label>Address*</label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                placeholder="Complete residential address"
+                rows="3"
+                className={errors.address ? 'error' : ''}
+              />
+              {errors.address && <span className="error-text">{errors.address}</span>}
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Emergency Contact Name</label>
+                <input
+                  type="text"
+                  name="emergencyContactName"
+                  value={formData.emergencyContactName}
+                  onChange={handleInputChange}
+                  placeholder="Emergency contact person"
+                />
+              </div>
+              <div className="form-group">
+                <label>Emergency Contact Phone</label>
+                <input
+                  type="tel"
+                  name="emergencyContactPhone"
+                  value={formData.emergencyContactPhone}
+                  onChange={handleInputChange}
+                  placeholder="Emergency contact number"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 1:
+        return (
+          <div className="form-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Primary Subject*</label>
+                <select
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
+                  className={errors.subject ? 'error' : ''}
+                >
+                  <option value="">Select Subject</option>
+                  {subjectOptions.map(subject => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
+                </select>
+                {errors.subject && <span className="error-text">{errors.subject}</span>}
+              </div>
+              <div className="form-group">
+                <label>Department*</label>
+                <select
+                  name="department"
+                  value={formData.department}
+                  onChange={handleInputChange}
+                  className={errors.department ? 'error' : ''}
+                >
+                  <option value="">Select Department</option>
+                  <option value="Mathematics">Mathematics Department</option>
+                  <option value="Science">Science Department</option>
+                  <option value="Languages">Languages Department</option>
+                  <option value="Social Studies">Social Studies Department</option>
+                  <option value="Arts">Arts Department</option>
+                  <option value="Physical Education">Physical Education Department</option>
+                  <option value="Computer Science">Computer Science Department</option>
+                </select>
+                {errors.department && <span className="error-text">{errors.department}</span>}
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Designation*</label>
+                <select
+                  name="designation"
+                  value={formData.designation}
+                  onChange={handleInputChange}
+                  className={errors.designation ? 'error' : ''}
+                >
+                  <option value="">Select Designation</option>
+                  <option value="Teacher">Teacher</option>
+                  <option value="Senior Teacher">Senior Teacher</option>
+                  <option value="Head of Department">Head of Department</option>
+                  <option value="Assistant Principal">Assistant Principal</option>
+                  <option value="Principal">Principal</option>
+                  <option value="Subject Coordinator">Subject Coordinator</option>
+                </select>
+                {errors.designation && <span className="error-text">{errors.designation}</span>}
+              </div>
+              <div className="form-group">
+                <label>Employee Type*</label>
+                <select
+                  name="employeeType"
+                  value={formData.employeeType}
+                  onChange={handleInputChange}
+                  className={errors.employeeType ? 'error' : ''}
+                >
+                  <option value="">Select Type</option>
+                  <option value="Permanent">Permanent</option>
+                  <option value="Temporary">Temporary</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Substitute">Substitute</option>
+                </select>
+                {errors.employeeType && <span className="error-text">{errors.employeeType}</span>}
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Joining Date*</label>
+                <input
+                  type="date"
+                  name="joiningDate"
+                  value={formData.joiningDate}
+                  onChange={handleInputChange}
+                  className={errors.joiningDate ? 'error' : ''}
+                />
+                {errors.joiningDate && <span className="error-text">{errors.joiningDate}</span>}
+              </div>
+              <div className="form-group">
+                <label>Total Experience</label>
+                <input
+                  type="text"
+                  name="experience"
+                  value={formData.experience}
+                  onChange={handleInputChange}
+                  placeholder="e.g., 5 years, 2 months"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Previous School/Institution</label>
+                <input
+                  type="text"
+                  name="previousSchool"
+                  value={formData.previousSchool}
+                  onChange={handleInputChange}
+                  placeholder="Last workplace (if applicable)"
+                />
+              </div>
+              <div className="form-group">
+                <label>Monthly Salary</label>
+                <input
+                  type="number"
+                  name="salary"
+                  value={formData.salary}
+                  onChange={handleInputChange}
+                  placeholder="Monthly salary amount"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="form-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Highest Degree*</label>
+                <select
+                  name="highestDegree"
+                  value={formData.highestDegree}
+                  onChange={handleInputChange}
+                  className={errors.highestDegree ? 'error' : ''}
+                >
+                  <option value="">Select Degree</option>
+                  <option value="Bachelor's">Bachelor's Degree</option>
+                  <option value="Master's">Master's Degree</option>
+                  <option value="PhD">PhD</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="Certificate">Certificate</option>
+                </select>
+                {errors.highestDegree && <span className="error-text">{errors.highestDegree}</span>}
+              </div>
+              <div className="form-group">
+                <label>University/Institution*</label>
+                <input
+                  type="text"
+                  name="university"
+                  value={formData.university}
+                  onChange={handleInputChange}
+                  placeholder="University or institution name"
+                  className={errors.university ? 'error' : ''}
+                />
+                {errors.university && <span className="error-text">{errors.university}</span>}
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Graduation Year*</label>
+                <input
+                  type="number"
+                  name="graduationYear"
+                  value={formData.graduationYear}
+                  onChange={handleInputChange}
+                  placeholder="Year of graduation"
+                  min="1960"
+                  max={new Date().getFullYear()}
+                  className={errors.graduationYear ? 'error' : ''}
+                />
+                {errors.graduationYear && <span className="error-text">{errors.graduationYear}</span>}
+              </div>
+              <div className="form-group">
+                <label>Specialization</label>
+                <input
+                  type="text"
+                  name="specialization"
+                  value={formData.specialization}
+                  onChange={handleInputChange}
+                  placeholder="Field of specialization"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Additional Certifications</label>
+              <textarea
+                name="additionalCertifications"
+                value={formData.additionalCertifications}
+                onChange={handleInputChange}
+                placeholder="List any additional certifications, training, or qualifications"
+                rows="3"
+              />
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="form-section">
+            <div className="form-group">
+              <label>Classes Assigned</label>
+              <select
+                name="classesAssigned"
+                multiple
+                value={formData.classesAssigned}
+                onChange={handleInputChange}
+                className="multi-select"
+              >
+                <option value="Grade 8A">Grade 8A</option>
+                <option value="Grade 8B">Grade 8B</option>
+                <option value="Grade 9A">Grade 9A</option>
+                <option value="Grade 9B">Grade 9B</option>
+                <option value="Grade 10A">Grade 10A</option>
+                <option value="Grade 10B">Grade 10B</option>
+                <option value="Grade 10C">Grade 10C</option>
+                <option value="Grade 11A">Grade 11A</option>
+                <option value="Grade 11B">Grade 11B</option>
+                <option value="Grade 11C">Grade 11C</option>
+                <option value="Grade 12A">Grade 12A</option>
+                <option value="Grade 12B">Grade 12B</option>
+              </select>
+              <small>Hold Ctrl/Cmd to select multiple classes</small>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Maximum Class Load</label>
+                <input
+                  type="number"
+                  name="maxClassLoad"
+                  value={formData.maxClassLoad}
+                  onChange={handleInputChange}
+                  placeholder="Maximum number of classes per week"
+                  min="1"
+                  max="40"
+                />
+              </div>
+              <div className="form-group">
+                <label>Preferred Grades</label>
+                <select
+                  name="preferredGrades"
+                  multiple
+                  value={formData.preferredGrades}
+                  onChange={handleInputChange}
+                  className="multi-select"
+                >
+                  {gradeOptions.map(grade => (
+                    <option key={grade} value={grade}>{grade}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Teaching Methodology</label>
+              <textarea
+                name="teachingMethodology"
+                value={formData.teachingMethodology}
+                onChange={handleInputChange}
+                placeholder="Describe your teaching approach and methodology"
+                rows="4"
+              />
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="form-section">
+            <div className="form-group">
+              <label>Subject Expertise</label>
+              <select
+                name="subjectExpertise"
+                multiple
+                value={formData.subjectExpertise}
+                onChange={handleInputChange}
+                className="multi-select"
+              >
+                {subjectOptions.map(subject => (
+                  <option key={subject} value={subject}>{subject}</option>
+                ))}
+              </select>
+              <small>Select all subjects you can teach</small>
+            </div>
+            <div className="form-group">
+              <label>Technical Skills</label>
+              <select
+                name="technicalSkills"
+                multiple
+                value={formData.technicalSkills}
+                onChange={handleInputChange}
+                className="multi-select"
+              >
+                <option value="Microsoft Office">Microsoft Office</option>
+                <option value="Google Workspace">Google Workspace</option>
+                <option value="Online Teaching Platforms">Online Teaching Platforms</option>
+                <option value="Educational Software">Educational Software</option>
+                <option value="Digital Presentation Tools">Digital Presentation Tools</option>
+                <option value="Learning Management Systems">Learning Management Systems</option>
+                <option value="Video Editing">Video Editing</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Programming">Programming</option>
+                <option value="Database Management">Database Management</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Languages Known</label>
+              <select
+                name="languages"
+                multiple
+                value={formData.languages}
+                onChange={handleInputChange}
+                className="multi-select"
+              >
+                <option value="English">English</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+                <option value="Mandarin">Mandarin</option>
+                <option value="Arabic">Arabic</option>
+                <option value="Regional Languages">Regional Languages</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Extracurricular Skills</label>
+              <textarea
+                name="extracurricularSkills"
+                value={formData.extracurricularSkills}
+                onChange={handleInputChange}
+                placeholder="Sports coaching, music, drama, debate, etc."
+                rows="3"
+              />
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="form-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Bank Account Number</label>
+                <input
+                  type="text"
+                  name="bankAccount"
+                  value={formData.bankAccount}
+                  onChange={handleInputChange}
+                  placeholder="Bank account number"
+                />
+              </div>
+              <div className="form-group">
+                <label>IFSC Code</label>
+                <input
+                  type="text"
+                  name="ifscCode"
+                  value={formData.ifscCode}
+                  onChange={handleInputChange}
+                  placeholder="Bank IFSC code"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>PAN Number</label>
+                <input
+                  type="text"
+                  name="panNumber"
+                  value={formData.panNumber}
+                  onChange={handleInputChange}
+                  placeholder="PAN card number"
+                />
+              </div>
+              <div className="form-group">
+                <label>Aadhar Number</label>
+                <input
+                  type="text"
+                  name="aadharNumber"
+                  value={formData.aadharNumber}
+                  onChange={handleInputChange}
+                  placeholder="Aadhar card number"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 6:
+        return (
+          <div className="form-section">
+            <div className="form-group">
+              <label>Hobbies & Interests</label>
+              <textarea
+                name="hobbies"
+                value={formData.hobbies}
+                onChange={handleInputChange}
+                placeholder="Personal hobbies and interests"
+                rows="3"
+              />
+            </div>
+            <div className="form-group">
+              <label>Achievements & Awards</label>
+              <textarea
+                name="achievements"
+                value={formData.achievements}
+                onChange={handleInputChange}
+                placeholder="Professional achievements, awards, recognitions"
+                rows="3"
+              />
+            </div>
+            <div className="form-group">
+              <label>References</label>
+              <textarea
+                name="references"
+                value={formData.references}
+                onChange={handleInputChange}
+                placeholder="Professional references with contact information"
+                rows="3"
+              />
+            </div>
+            <div className="form-group">
+              <label>Medical Information</label>
+              <textarea
+                name="medicalInfo"
+                value={formData.medicalInfo}
+                onChange={handleInputChange}
+                placeholder="Any medical conditions or health information relevant to work"
+                rows="2"
+              />
+            </div>
+          </div>
+        );
+
+      case 7:
+        return (
+          <div className="form-section">
+            <h4>📄 Document Checklist</h4>
+            <p className="checklist-description">Please confirm which documents have been submitted:</p>
+            <div className="document-checklist">
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.resume"
+                  checked={formData.documents.resume}
+                  onChange={handleInputChange}
+                />
+                <span>Resume/CV</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.degreesCertificates"
+                  checked={formData.documents.degreesCertificates}
+                  onChange={handleInputChange}
+                />
+                <span>Degrees & Certificates</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.experienceCertificates"
+                  checked={formData.documents.experienceCertificates}
+                  onChange={handleInputChange}
+                />
+                <span>Experience Certificates</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.panCard"
+                  checked={formData.documents.panCard}
+                  onChange={handleInputChange}
+                />
+                <span>PAN Card</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.aadharCard"
+                  checked={formData.documents.aadharCard}
+                  onChange={handleInputChange}
+                />
+                <span>Aadhar Card</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.photographs"
+                  checked={formData.documents.photographs}
+                  onChange={handleInputChange}
+                />
+                <span>Passport Size Photographs</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.addressProof"
+                  checked={formData.documents.addressProof}
+                  onChange={handleInputChange}
+                />
+                <span>Address Proof</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.medicalCertificate"
+                  checked={formData.documents.medicalCertificate}
+                  onChange={handleInputChange}
+                />
+                <span>Medical Certificate</span>
+              </label>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="add-teacher-page">
+      <div className="page-header">
+        <button className="btn-secondary" onClick={onBack}>← Back to Teachers</button>
+        <h1>Add New Teacher</h1>
+      </div>
+
+      <div className="form-container">
+        {/* Progress Steps */}
+        <div className="progress-steps">
+          {sections.map((section, index) => (
+            <div
+              key={section.id}
+              className={`step ${index === currentSection ? 'active' : ''} ${index < currentSection ? 'completed' : ''}`}
+              onClick={() => setCurrentSection(index)}
+            >
+              <div className="step-icon">{section.icon}</div>
+              <div className="step-info">
+                <span className="step-number">{index + 1}</span>
+                <span className="step-title">{section.title}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit} className="teacher-form">
+          <div className="form-content">
+            <div className="section-header">
+              <h2>{sections[currentSection].title}</h2>
+              <div className="section-progress">
+                Step {currentSection + 1} of {sections.length}
+              </div>
+            </div>
+
+            {renderSection()}
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handlePrevious}
+              disabled={currentSection === 0}
+            >
+              ← Previous
+            </button>
+            
+            <button type="button" className="btn-secondary">
+              Save as Draft
+            </button>
+
+            {currentSection < sections.length - 1 ? (
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handleNext}
+              >
+                Next →
+              </button>
+            ) : (
+              <button type="submit" className="btn-primary">
+                Add Teacher
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AddTeacherPage;
