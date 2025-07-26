@@ -1,0 +1,758 @@
+
+import React, { useState } from 'react';
+import './AddStudentPage.css';
+
+const AddStudentPage = ({ onBack, onSave }) => {
+  const [formData, setFormData] = useState({
+    // Personal Information
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    gender: '',
+    studentId: '',
+    email: '',
+    phone: '',
+    address: '',
+    
+    // Academic Information
+    grade: '',
+    enrollmentDate: '',
+    previousSchool: '',
+    transferGPA: '',
+    academicTrack: '',
+    
+    // Parent/Guardian Information
+    fatherName: '',
+    motherName: '',
+    fatherPhone: '',
+    motherPhone: '',
+    fatherEmail: '',
+    motherEmail: '',
+    fatherOccupation: '',
+    motherOccupation: '',
+    primaryGuardian: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    
+    // Medical & Special Information
+    bloodGroup: '',
+    medicalConditions: '',
+    currentMedications: '',
+    dietaryRestrictions: '',
+    specialNeeds: '',
+    
+    // Transportation & Additional Info
+    transportationMode: '',
+    busRoute: '',
+    extracurricularInterests: '',
+    additionalNotes: '',
+    
+    // Document Checklist
+    documents: {
+      birthCertificate: false,
+      transferCertificate: false,
+      medicalCertificate: false,
+      photographs: false,
+      parentId: false,
+      addressProof: false,
+      academicRecords: false
+    }
+  });
+
+  const [errors, setErrors] = useState({});
+  const [currentSection, setCurrentSection] = useState(0);
+
+  const sections = [
+    { id: 0, title: '📝 Personal Information', icon: '👤' },
+    { id: 1, title: '🏫 Academic Information', icon: '📚' },
+    { id: 2, title: '👨‍👩‍👧‍👦 Parent/Guardian Information', icon: '👥' },
+    { id: 3, title: '🏥 Medical & Special Information', icon: '🏥' },
+    { id: 4, title: '🚌 Transportation & Additional Info', icon: '🚌' },
+    { id: 5, title: '📄 Document Checklist', icon: '📋' }
+  ];
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    if (name.startsWith('documents.')) {
+      const docName = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        documents: {
+          ...prev.documents,
+          [docName]: checked
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
+    
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateSection = (sectionId) => {
+    const newErrors = {};
+    
+    switch (sectionId) {
+      case 0: // Personal Information
+        if (!formData.firstName) newErrors.firstName = 'First name is required';
+        if (!formData.lastName) newErrors.lastName = 'Last name is required';
+        if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+        if (!formData.gender) newErrors.gender = 'Gender is required';
+        if (!formData.studentId) newErrors.studentId = 'Student ID is required';
+        if (!formData.email) newErrors.email = 'Email is required';
+        if (!formData.address) newErrors.address = 'Address is required';
+        break;
+      case 1: // Academic Information
+        if (!formData.grade) newErrors.grade = 'Grade is required';
+        if (!formData.enrollmentDate) newErrors.enrollmentDate = 'Enrollment date is required';
+        break;
+      case 2: // Parent/Guardian Information
+        if (!formData.fatherName) newErrors.fatherName = 'Father\'s name is required';
+        if (!formData.motherName) newErrors.motherName = 'Mother\'s name is required';
+        if (!formData.fatherPhone) newErrors.fatherPhone = 'Father\'s phone is required';
+        if (!formData.motherPhone) newErrors.motherPhone = 'Mother\'s phone is required';
+        if (!formData.primaryGuardian) newErrors.primaryGuardian = 'Primary guardian is required';
+        if (!formData.emergencyContactName) newErrors.emergencyContactName = 'Emergency contact name is required';
+        if (!formData.emergencyContactPhone) newErrors.emergencyContactPhone = 'Emergency contact phone is required';
+        break;
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateSection(currentSection)) {
+      setCurrentSection(prev => Math.min(prev + 1, sections.length - 1));
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentSection(prev => Math.max(prev - 1, 0));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateSection(currentSection)) {
+      const newStudent = {
+        id: Date.now(),
+        name: `${formData.firstName} ${formData.lastName}`,
+        grade: formData.grade,
+        age: new Date().getFullYear() - new Date(formData.dateOfBirth).getFullYear(),
+        email: formData.email,
+        gpa: formData.transferGPA || 0.0,
+        ...formData
+      };
+      onSave(newStudent);
+    }
+  };
+
+  const renderSection = () => {
+    switch (currentSection) {
+      case 0:
+        return (
+          <div className="form-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label>First Name*</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  placeholder="Enter first name"
+                  className={errors.firstName ? 'error' : ''}
+                />
+                {errors.firstName && <span className="error-text">{errors.firstName}</span>}
+              </div>
+              <div className="form-group">
+                <label>Last Name*</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  placeholder="Enter last name"
+                  className={errors.lastName ? 'error' : ''}
+                />
+                {errors.lastName && <span className="error-text">{errors.lastName}</span>}
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Date of Birth*</label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleInputChange}
+                  className={errors.dateOfBirth ? 'error' : ''}
+                />
+                {errors.dateOfBirth && <span className="error-text">{errors.dateOfBirth}</span>}
+              </div>
+              <div className="form-group">
+                <label>Gender*</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className={errors.gender ? 'error' : ''}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                  <option value="prefer-not-to-say">Prefer not to say</option>
+                </select>
+                {errors.gender && <span className="error-text">{errors.gender}</span>}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Student ID*</label>
+              <input
+                type="text"
+                name="studentId"
+                value={formData.studentId}
+                onChange={handleInputChange}
+                placeholder="Enter unique student ID"
+                className={errors.studentId ? 'error' : ''}
+              />
+              {errors.studentId && <span className="error-text">{errors.studentId}</span>}
+            </div>
+            <div className="form-group">
+              <label>Email Address*</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="student@email.com"
+                className={errors.email ? 'error' : ''}
+              />
+              {errors.email && <span className="error-text">{errors.email}</span>}
+            </div>
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder="Enter phone number"
+              />
+            </div>
+            <div className="form-group">
+              <label>Home Address*</label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                placeholder="Enter complete home address"
+                rows="3"
+                className={errors.address ? 'error' : ''}
+              />
+              {errors.address && <span className="error-text">{errors.address}</span>}
+            </div>
+          </div>
+        );
+
+      case 1:
+        return (
+          <div className="form-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Grade/Class*</label>
+                <select
+                  name="grade"
+                  value={formData.grade}
+                  onChange={handleInputChange}
+                  className={errors.grade ? 'error' : ''}
+                >
+                  <option value="">Select Grade</option>
+                  <option value="Grade 8A">Grade 8A</option>
+                  <option value="Grade 8B">Grade 8B</option>
+                  <option value="Grade 9A">Grade 9A</option>
+                  <option value="Grade 9B">Grade 9B</option>
+                  <option value="Grade 10A">Grade 10A</option>
+                  <option value="Grade 10B">Grade 10B</option>
+                  <option value="Grade 10C">Grade 10C</option>
+                  <option value="Grade 11A">Grade 11A</option>
+                  <option value="Grade 11B">Grade 11B</option>
+                  <option value="Grade 11C">Grade 11C</option>
+                  <option value="Grade 12A">Grade 12A</option>
+                  <option value="Grade 12B">Grade 12B</option>
+                  <option value="Grade 12C">Grade 12C</option>
+                </select>
+                {errors.grade && <span className="error-text">{errors.grade}</span>}
+              </div>
+              <div className="form-group">
+                <label>Enrollment Date*</label>
+                <input
+                  type="date"
+                  name="enrollmentDate"
+                  value={formData.enrollmentDate}
+                  onChange={handleInputChange}
+                  className={errors.enrollmentDate ? 'error' : ''}
+                />
+                {errors.enrollmentDate && <span className="error-text">{errors.enrollmentDate}</span>}
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Previous School</label>
+                <input
+                  type="text"
+                  name="previousSchool"
+                  value={formData.previousSchool}
+                  onChange={handleInputChange}
+                  placeholder="Previous school name"
+                />
+              </div>
+              <div className="form-group">
+                <label>Transfer Grade/GPA</label>
+                <input
+                  type="number"
+                  name="transferGPA"
+                  value={formData.transferGPA}
+                  onChange={handleInputChange}
+                  step="0.01"
+                  min="0"
+                  max="4.0"
+                  placeholder="Previous GPA (if applicable)"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Academic Track/Stream</label>
+              <select
+                name="academicTrack"
+                value={formData.academicTrack}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Track</option>
+                <option value="science">Science Track</option>
+                <option value="arts">Arts/Humanities Track</option>
+                <option value="commerce">Commerce Track</option>
+                <option value="general">General Studies</option>
+              </select>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="form-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Father's Name*</label>
+                <input
+                  type="text"
+                  name="fatherName"
+                  value={formData.fatherName}
+                  onChange={handleInputChange}
+                  placeholder="Enter father's full name"
+                  className={errors.fatherName ? 'error' : ''}
+                />
+                {errors.fatherName && <span className="error-text">{errors.fatherName}</span>}
+              </div>
+              <div className="form-group">
+                <label>Mother's Name*</label>
+                <input
+                  type="text"
+                  name="motherName"
+                  value={formData.motherName}
+                  onChange={handleInputChange}
+                  placeholder="Enter mother's full name"
+                  className={errors.motherName ? 'error' : ''}
+                />
+                {errors.motherName && <span className="error-text">{errors.motherName}</span>}
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Father's Phone*</label>
+                <input
+                  type="tel"
+                  name="fatherPhone"
+                  value={formData.fatherPhone}
+                  onChange={handleInputChange}
+                  placeholder="Father's contact number"
+                  className={errors.fatherPhone ? 'error' : ''}
+                />
+                {errors.fatherPhone && <span className="error-text">{errors.fatherPhone}</span>}
+              </div>
+              <div className="form-group">
+                <label>Mother's Phone*</label>
+                <input
+                  type="tel"
+                  name="motherPhone"
+                  value={formData.motherPhone}
+                  onChange={handleInputChange}
+                  placeholder="Mother's contact number"
+                  className={errors.motherPhone ? 'error' : ''}
+                />
+                {errors.motherPhone && <span className="error-text">{errors.motherPhone}</span>}
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Father's Email</label>
+                <input
+                  type="email"
+                  name="fatherEmail"
+                  value={formData.fatherEmail}
+                  onChange={handleInputChange}
+                  placeholder="father@email.com"
+                />
+              </div>
+              <div className="form-group">
+                <label>Mother's Email</label>
+                <input
+                  type="email"
+                  name="motherEmail"
+                  value={formData.motherEmail}
+                  onChange={handleInputChange}
+                  placeholder="mother@email.com"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Father's Occupation</label>
+                <input
+                  type="text"
+                  name="fatherOccupation"
+                  value={formData.fatherOccupation}
+                  onChange={handleInputChange}
+                  placeholder="Father's profession"
+                />
+              </div>
+              <div className="form-group">
+                <label>Mother's Occupation</label>
+                <input
+                  type="text"
+                  name="motherOccupation"
+                  value={formData.motherOccupation}
+                  onChange={handleInputChange}
+                  placeholder="Mother's profession"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Primary Guardian*</label>
+              <select
+                name="primaryGuardian"
+                value={formData.primaryGuardian}
+                onChange={handleInputChange}
+                className={errors.primaryGuardian ? 'error' : ''}
+              >
+                <option value="">Select Primary Guardian</option>
+                <option value="father">Father</option>
+                <option value="mother">Mother</option>
+                <option value="both">Both Parents</option>
+                <option value="other">Other Guardian</option>
+              </select>
+              {errors.primaryGuardian && <span className="error-text">{errors.primaryGuardian}</span>}
+            </div>
+            <div className="form-group">
+              <label>Emergency Contact Name*</label>
+              <input
+                type="text"
+                name="emergencyContactName"
+                value={formData.emergencyContactName}
+                onChange={handleInputChange}
+                placeholder="Emergency contact person"
+                className={errors.emergencyContactName ? 'error' : ''}
+              />
+              {errors.emergencyContactName && <span className="error-text">{errors.emergencyContactName}</span>}
+            </div>
+            <div className="form-group">
+              <label>Emergency Contact Phone*</label>
+              <input
+                type="tel"
+                name="emergencyContactPhone"
+                value={formData.emergencyContactPhone}
+                onChange={handleInputChange}
+                placeholder="Emergency contact number"
+                className={errors.emergencyContactPhone ? 'error' : ''}
+              />
+              {errors.emergencyContactPhone && <span className="error-text">{errors.emergencyContactPhone}</span>}
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="form-section">
+            <div className="form-group">
+              <label>Blood Group</label>
+              <select
+                name="bloodGroup"
+                value={formData.bloodGroup}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Blood Group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Medical Conditions</label>
+              <textarea
+                name="medicalConditions"
+                value={formData.medicalConditions}
+                onChange={handleInputChange}
+                placeholder="Any chronic conditions, allergies, or medical history"
+                rows="3"
+              />
+            </div>
+            <div className="form-group">
+              <label>Current Medications</label>
+              <textarea
+                name="currentMedications"
+                value={formData.currentMedications}
+                onChange={handleInputChange}
+                placeholder="List any medications the student is currently taking"
+                rows="2"
+              />
+            </div>
+            <div className="form-group">
+              <label>Dietary Restrictions</label>
+              <textarea
+                name="dietaryRestrictions"
+                value={formData.dietaryRestrictions}
+                onChange={handleInputChange}
+                placeholder="Any food allergies or dietary requirements"
+                rows="2"
+              />
+            </div>
+            <div className="form-group">
+              <label>Special Needs/Accommodations</label>
+              <textarea
+                name="specialNeeds"
+                value={formData.specialNeeds}
+                onChange={handleInputChange}
+                placeholder="Any learning disabilities, physical limitations, or special accommodations needed"
+                rows="3"
+              />
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="form-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Transportation Mode</label>
+                <select
+                  name="transportationMode"
+                  value={formData.transportationMode}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Transportation</option>
+                  <option value="school-bus">School Bus</option>
+                  <option value="parent-pickup">Parent Pickup</option>
+                  <option value="walking">Walking</option>
+                  <option value="public-transport">Public Transport</option>
+                  <option value="cycling">Cycling</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Bus Route Number</label>
+                <input
+                  type="text"
+                  name="busRoute"
+                  value={formData.busRoute}
+                  onChange={handleInputChange}
+                  placeholder="Bus route (if applicable)"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Extracurricular Interests</label>
+              <textarea
+                name="extracurricularInterests"
+                value={formData.extracurricularInterests}
+                onChange={handleInputChange}
+                placeholder="Sports, arts, clubs, or activities the student is interested in"
+                rows="2"
+              />
+            </div>
+            <div className="form-group">
+              <label>Additional Notes</label>
+              <textarea
+                name="additionalNotes"
+                value={formData.additionalNotes}
+                onChange={handleInputChange}
+                placeholder="Any other important information about the student"
+                rows="3"
+              />
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="form-section">
+            <h4>📄 Document Checklist</h4>
+            <p className="checklist-description">Please confirm which documents have been submitted:</p>
+            <div className="document-checklist">
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.birthCertificate"
+                  checked={formData.documents.birthCertificate}
+                  onChange={handleInputChange}
+                />
+                <span>Birth Certificate</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.transferCertificate"
+                  checked={formData.documents.transferCertificate}
+                  onChange={handleInputChange}
+                />
+                <span>Previous School Transfer Certificate</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.medicalCertificate"
+                  checked={formData.documents.medicalCertificate}
+                  onChange={handleInputChange}
+                />
+                <span>Medical Certificate</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.photographs"
+                  checked={formData.documents.photographs}
+                  onChange={handleInputChange}
+                />
+                <span>Passport Size Photographs (4 copies)</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.parentId"
+                  checked={formData.documents.parentId}
+                  onChange={handleInputChange}
+                />
+                <span>Parent/Guardian ID Proof</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.addressProof"
+                  checked={formData.documents.addressProof}
+                  onChange={handleInputChange}
+                />
+                <span>Address Proof</span>
+              </label>
+              <label className="checkbox-item">
+                <input
+                  type="checkbox"
+                  name="documents.academicRecords"
+                  checked={formData.documents.academicRecords}
+                  onChange={handleInputChange}
+                />
+                <span>Previous Academic Records</span>
+              </label>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="add-student-page">
+      <div className="page-header">
+        <button className="btn-secondary" onClick={onBack}>← Back to Students</button>
+        <h1>Add New Student</h1>
+      </div>
+
+      <div className="form-container">
+        {/* Progress Steps */}
+        <div className="progress-steps">
+          {sections.map((section, index) => (
+            <div
+              key={section.id}
+              className={`step ${index === currentSection ? 'active' : ''} ${index < currentSection ? 'completed' : ''}`}
+              onClick={() => setCurrentSection(index)}
+            >
+              <div className="step-icon">{section.icon}</div>
+              <div className="step-info">
+                <span className="step-number">{index + 1}</span>
+                <span className="step-title">{section.title}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit} className="student-form">
+          <div className="form-content">
+            <div className="section-header">
+              <h2>{sections[currentSection].title}</h2>
+              <div className="section-progress">
+                Step {currentSection + 1} of {sections.length}
+              </div>
+            </div>
+
+            {renderSection()}
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handlePrevious}
+              disabled={currentSection === 0}
+            >
+              ← Previous
+            </button>
+            
+            <button type="button" className="btn-secondary">
+              Save as Draft
+            </button>
+
+            {currentSection < sections.length - 1 ? (
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handleNext}
+              >
+                Next →
+              </button>
+            ) : (
+              <button type="submit" className="btn-primary">
+                Add Student
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AddStudentPage
